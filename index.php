@@ -52,7 +52,6 @@ class MetaTagIterator implements Iterator {
     }
 }
 
-// Использование:
 $metaIterator = new MetaTagIterator('index.html');
 
 foreach ($metaIterator as $name => $content) {
