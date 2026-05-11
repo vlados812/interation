@@ -2,13 +2,14 @@
 
 class MetaTagIterator implements Iterator {
     private $tags = [];
+    private $keys = [];
     private $position = 0;
 
     public function __construct(string $htmlPath) {
         $dom = new DOMDocument();
-        @$dom->loadHTMLFile($htmlPath);
-        
-        $this->extractTags($dom);
+        if (@$dom->loadHTMLFile($htmlPath)) {
+            $this->extractTags($dom);
+        }
     }
 
     private function extractTags(DOMDocument $dom) {
@@ -16,17 +17,20 @@ class MetaTagIterator implements Iterator {
         if ($titleNodes->length > 0) {
             $this->tags['title'] = $titleNodes->item(0)->nodeValue;
         }
+
         $metas = $dom->getElementsByTagName('meta');
         foreach ($metas as $meta) {
             if ($meta instanceof DOMElement) {
                 $name = strtolower($meta->getAttribute('name'));
+                if (!$name) {
+                    $name = strtolower($meta->getAttribute('property'));
+                }
+
                 if (in_array($name, ['description', 'keywords'])) {
                     $this->tags[$name] = $meta->getAttribute('content');
                 }
             }
         }
-        
-
         $this->keys = array_keys($this->tags);
     }
 
